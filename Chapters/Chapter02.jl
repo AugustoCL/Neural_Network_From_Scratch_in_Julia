@@ -26,6 +26,10 @@ So, for this simple example with 1 neuron with 4 inputs we are gonna have:
 # ╔═╡ abb7a21d-9048-4d09-8b41-cdd519773756
 md"""
 #### Introduction the notation
+"""
+
+# ╔═╡ 99084569-d10d-43c7-bda3-361bc0c9881b
+md"""
 The output of the neuron $$i$$, $$a^{(L)}_i$$, is equal to the scalar product of weights vector $$W_i$$ by the input vector $$a^{(L-1)}$$, plus bias $$b_i$$.\
 """
 
@@ -48,7 +52,7 @@ $$a_{k × 1}^{(L)} = W_{k × j}×a_{j × 1}^{(L - 1)} + b_{k × 1}$$
 md"""
 Applying that notation in our first layer example of 4 inputs and 1 output we got:
 
-$$a_{1 × 1}^{(1)} = W_{1 × 4}×a_{4 × 1}^{(0)} + b_{1 × 1}$$
+$$a_1^{(2)} = W_1 \cdot a^{(1)} + b_1$$
 """
 
 # ╔═╡ ef746509-f29b-42ae-b9ec-a2e18ad4b327
@@ -57,11 +61,18 @@ begin
 	weights = [0.2, 0.8, -0.5, 1.0]
 	bias = 2.0
 
-	weights ⋅ inputs + bias # \cdot or dot(w, i)
+	weights ⋅ inputs + bias # \cdot<tab> or dot(w, i)
 end
 
 # ╔═╡ a3acafe8-6a4b-4438-84d9-16a00cb21997
 md"### A Layer of 03 Neurons (4 inputs, 3 outputs)"
+
+# ╔═╡ cf00a188-0f6c-484b-b793-5b1cb9f08210
+md"""
+$$a_1^{(2)} = W_1 \cdot a^{(1)} + b_1$$
+$$a_2^{(2)} = W_2 \cdot a^{(1)} + b_2$$
+$$a_3^{(2)} = W_3 \cdot a^{(1)} + b_2$$
+"""
 
 # ╔═╡ 9fbc1e4c-52c0-4b99-92dc-4969b55f645d
 begin
@@ -82,7 +93,7 @@ end
 md"""
 Applying the notation in that layer with 4 inputs and 3 output we got:
 
-$$a_{3 × 1}^{(1)} = W_{3 × 4}×a_{4 × 1}^{(0)} + b_{3 × 1}$$
+$$a_{3 × 1}^{(2)} = W_{3 × 4}×a_{4 × 1}^{(1)} + b_{3 × 1}$$
 """
 
 # ╔═╡ 3613059e-501d-4cb0-bd73-8e42e6395e16
@@ -94,7 +105,7 @@ begin
 		 0.2   0.8  -0.5   1.0
 		 0.5  -0.91  0.26 -0.5
 		-0.26 -0.27  0.17  0.87
-		]
+	]
 					  
 	bias_vec = [2.0, 3.0, 0.5]
 	
@@ -134,9 +145,18 @@ begin
 		 2.0 5.0 -1.0  2.0
 		-1.5 2.7  3.3 -0.8
 	]
-	#bias_vec = [2.0, 3.0, 0.5]
-	(input01 = inputs_batch01,
-	 output01 = (inputs_batch01 * weights_matrix') .+ bias_vec')
+	
+	#=
+	bias_vec = [2.0, 3.0, 0.5]
+	weights_matrix = [
+		 0.2   0.8  -0.5   1.0
+		 0.5  -0.91  0.26 -0.5
+		-0.26 -0.27  0.17  0.87
+		]
+	=#
+	
+	(input = inputs_batch01,
+	 output = weights_matrix * inputs_batch01' .+ bias_vec)
 end
 
 # ╔═╡ bba52778-115b-4e0d-b63b-2b1f4802736f
@@ -149,9 +169,18 @@ begin
 	inputs_batch02 = [
 		[1.0, 2.0, 3.0, 2.5] [2.0, 5.0, -1.0, 2.0] [-1.5, 2.7, 3.3, -0.8]
 	]
-	#bias_vec = [2.0, 3.0, 0.5]
-	(input02 = inputs_batch02,
-	 output02 = (weights_matrix * inputs_batch02) .+ bias_vec)
+	
+	#=
+	bias_vec = [2.0, 3.0, 0.5]
+	weights_matrix = [
+		 0.2   0.8  -0.5   1.0
+		 0.5  -0.91  0.26 -0.5
+		-0.26 -0.27  0.17  0.87
+		]
+	=#
+	
+	(input = inputs_batch02,
+	 output = weights_matrix * inputs_batch02 .+ bias_vec)
 end
 
 # ╔═╡ Cell order:
@@ -159,6 +188,7 @@ end
 # ╟─0c5d667f-0ea5-4d21-80ad-58d144470a73
 # ╟─d85b097d-c7c7-439f-80ec-a1b75c696cb1
 # ╟─abb7a21d-9048-4d09-8b41-cdd519773756
+# ╟─99084569-d10d-43c7-bda3-361bc0c9881b
 # ╟─73f22e47-8671-44a9-ab74-786b281b9d69
 # ╟─0ebd7094-37ab-4151-b874-58b6347eb0d9
 # ╟─37bbfcde-9c52-436a-96ef-bacf158ef5bd
@@ -166,6 +196,7 @@ end
 # ╠═9522185e-2666-4cf9-a228-a9ed2f1fd4f5
 # ╠═ef746509-f29b-42ae-b9ec-a2e18ad4b327
 # ╟─a3acafe8-6a4b-4438-84d9-16a00cb21997
+# ╟─cf00a188-0f6c-484b-b793-5b1cb9f08210
 # ╠═9fbc1e4c-52c0-4b99-92dc-4969b55f645d
 # ╟─d96ad6e1-65de-4150-8fdd-579b8653dd39
 # ╟─3613059e-501d-4cb0-bd73-8e42e6395e16
