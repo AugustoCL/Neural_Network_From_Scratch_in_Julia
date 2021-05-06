@@ -56,10 +56,14 @@ outputs_relu = relu.(weights_matrix * inputs + bias_vec)
 
 # ╔═╡ afbe3c9c-6db4-415c-921d-cdc4033e9b06
 function softmax(x::Vector{T}) where {T<:Real}
-	exp_val = exp.(x)
-	output = exp_val ./ sum(exp_val)
-	return output
+	m = maximum(x)
+	exp_val = exp.(x .- m)
+	s = sum(exp_val)
+	exp_val ./ s
 end
+
+# ╔═╡ 06453c97-9ac6-4bfd-9e34-90f27ad9c8b7
+outputs_softmax = softmax(weights_matrix * inputs + bias_vec)
 
 # ╔═╡ Cell order:
 # ╠═78b943f0-ae7b-11eb-3de1-d5cfb31433c6
@@ -73,3 +77,4 @@ end
 # ╠═e2f8442b-5ccd-431a-8881-3e746b0eb047
 # ╠═8ba34590-f8a0-469d-9b17-48dc184ea239
 # ╠═afbe3c9c-6db4-415c-921d-cdc4033e9b06
+# ╠═06453c97-9ac6-4bfd-9e34-90f27ad9c8b7
