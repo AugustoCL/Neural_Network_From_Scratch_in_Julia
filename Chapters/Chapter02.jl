@@ -61,8 +61,14 @@ begin
 	weights = [0.2, 0.8, -0.5, 1.0]
 	bias = 2.0
 
-	weights ⋅ inputs + bias # \cdot<tab> or dot(w, i)
+	output = weights ⋅ inputs + bias # \cdot<tab> or dot(w, i)
 end
+
+# ╔═╡ ac4afa91-d9fa-456e-8ede-2ab26296be28
+inputs[1] * weights[1] +
+inputs[2] * weights[2] +
+inputs[3] * weights[3] +
+inputs[4] * weights[4] + bias
 
 # ╔═╡ a3acafe8-6a4b-4438-84d9-16a00cb21997
 md"### A Layer of 03 Neurons (4 inputs, 3 outputs)"
@@ -84,9 +90,9 @@ begin
 	bias2 = 3.0
 	bias3 = 0.5
 
-	[weights1 ⋅ inputs + bias1,
-	 weights2 ⋅ inputs + bias2,
-	 weights3 ⋅ inputs + bias3]
+	(output1 = weights1 ⋅ inputs + bias1,
+	 output2 = weights2 ⋅ inputs + bias2,
+	 output3 = weights3 ⋅ inputs + bias3)
 end
 
 # ╔═╡ d96ad6e1-65de-4150-8fdd-579b8653dd39
@@ -108,8 +114,7 @@ begin
 	]
 					  
 	bias_vec = [2.0, 3.0, 0.5]
-	
-	weights_matrix * inputs + bias_vec
+	outputs = weights_matrix * inputs + bias_vec
 end
 
 # ╔═╡ d27568ac-934c-4408-880d-4bd34ccead72
@@ -195,6 +200,7 @@ end
 # ╟─280badb4-b649-4805-b84d-b18797555c2b
 # ╠═9522185e-2666-4cf9-a228-a9ed2f1fd4f5
 # ╠═ef746509-f29b-42ae-b9ec-a2e18ad4b327
+# ╠═ac4afa91-d9fa-456e-8ede-2ab26296be28
 # ╟─a3acafe8-6a4b-4438-84d9-16a00cb21997
 # ╟─cf00a188-0f6c-484b-b793-5b1cb9f08210
 # ╠═9fbc1e4c-52c0-4b99-92dc-4969b55f645d
