@@ -7,23 +7,28 @@ using InteractiveUtils
 # ╔═╡ 6e58a278-ede3-440f-b5ad-c23d03833918
 using LinearAlgebra
 
+# ╔═╡ 81465bdf-4eb3-4dc5-8f60-2ccdca956e73
+md"#### Sigmoid"
+
 # ╔═╡ 78b943f0-ae7b-11eb-3de1-d5cfb31433c6
-function σ(x)
-	t = exp(-abs(x))
-	return ifelse(x ≥ 0, inv(1 + t), t / (1 + t))
+begin
+	function σ(x)
+		t = exp(-abs(x))
+		return ifelse(x ≥ 0, inv(1 + t), t / (1 + t))
+	end
 end
 
 # ╔═╡ 6fe8d0a2-fd10-4097-95c8-fea57d2a32e8
 const sigmoid = σ
 
-# ╔═╡ 5b4291e3-1f67-46ac-89f5-d00aaefdac8a
-sigmoid(4)
-
-# ╔═╡ 46487d66-1f85-4e2e-907c-ce688dc3b02f
-σ(4)
+# ╔═╡ 112f4771-632e-4c35-81bd-ec7f09b40dc0
+md"#### ReLU"
 
 # ╔═╡ 257e3608-759e-49b2-aa9f-88211bba198b
 relu(x) = max(zero(x), x)
+
+# ╔═╡ 5b4291e3-1f67-46ac-89f5-d00aaefdac8a
+sigmoid(4) == σ(4)
 
 # ╔═╡ 45ba9913-5316-457e-9f97-2622661397e1
 begin
@@ -31,11 +36,11 @@ begin
 	weights = [0.2, 0.8, -0.5, 1.0]
 	bias = 2.0
 	
-	output = σ(weights ⋅ inputs + bias)
+	(
+		σ(weights ⋅ inputs + bias),
+		relu(weights ⋅ inputs + bias)
+	)
 end
-
-# ╔═╡ 2571eef9-f812-47fc-bd5a-27042ae3751c
-output_relu = relu(weights ⋅ inputs + bias)
 
 # ╔═╡ e2f8442b-5ccd-431a-8881-3e746b0eb047
 begin
@@ -48,11 +53,14 @@ begin
 	
 	bias_vec = [2.0, 3.0, 0.5]
 	
-	outputs = σ.(weights_matrix * inputs + bias_vec)
+	( 
+		σ.(weights_matrix * inputs + bias_vec), 
+		relu.(weights_matrix * inputs + bias_vec)
+	)
 end
 
-# ╔═╡ 8ba34590-f8a0-469d-9b17-48dc184ea239
-outputs_relu = relu.(weights_matrix * inputs + bias_vec)
+# ╔═╡ 0e4a6376-d3fa-47fc-b140-ddb65ee0c592
+md"#### Softmax"
 
 # ╔═╡ afbe3c9c-6db4-415c-921d-cdc4033e9b06
 function softmax(x::Vector{T}) where {T<:Real}
@@ -62,19 +70,42 @@ function softmax(x::Vector{T}) where {T<:Real}
 	exp_val ./ s
 end
 
-# ╔═╡ 06453c97-9ac6-4bfd-9e34-90f27ad9c8b7
-outputs_softmax = softmax(weights_matrix * inputs + bias_vec)
+# ╔═╡ 662251f6-03ae-4ea6-8bd1-e90ec8a10805
+function softmax(x::Matrix{T}) where {T<:Real}
+	m = maximum.(eachcol(x))
+	exp_val = exp.(x .- m')	
+	s = sum(eachrow(exp_val))
+	return exp_val ./ s' 
+end
+
+# ╔═╡ 383304f8-eb30-45be-99c4-542132ecc78a
+begin
+	#inputs_batch = [
+	#	[1, 2, 3, 2.5] [2, 5, -1, 2] [-1.5, 2.7, 3.3, -0.8]
+	#]
+	inputs_batch = [
+		1 2 3 2.5
+		2 5 -1 2
+		-1.5 2.7 3.3 -0.8
+	]
+	
+	(
+		softmax(weights_matrix * inputs + bias_vec), 
+		softmax(weights_matrix * inputs_batch' .+ bias_vec) # orientacao coluna
+	)	
+end
 
 # ╔═╡ Cell order:
+# ╟─6e58a278-ede3-440f-b5ad-c23d03833918
+# ╟─81465bdf-4eb3-4dc5-8f60-2ccdca956e73
 # ╠═78b943f0-ae7b-11eb-3de1-d5cfb31433c6
 # ╠═6fe8d0a2-fd10-4097-95c8-fea57d2a32e8
-# ╠═5b4291e3-1f67-46ac-89f5-d00aaefdac8a
-# ╠═46487d66-1f85-4e2e-907c-ce688dc3b02f
+# ╟─112f4771-632e-4c35-81bd-ec7f09b40dc0
 # ╠═257e3608-759e-49b2-aa9f-88211bba198b
-# ╠═6e58a278-ede3-440f-b5ad-c23d03833918
+# ╠═5b4291e3-1f67-46ac-89f5-d00aaefdac8a
 # ╠═45ba9913-5316-457e-9f97-2622661397e1
-# ╠═2571eef9-f812-47fc-bd5a-27042ae3751c
 # ╠═e2f8442b-5ccd-431a-8881-3e746b0eb047
-# ╠═8ba34590-f8a0-469d-9b17-48dc184ea239
+# ╟─0e4a6376-d3fa-47fc-b140-ddb65ee0c592
 # ╠═afbe3c9c-6db4-415c-921d-cdc4033e9b06
-# ╠═06453c97-9ac6-4bfd-9e34-90f27ad9c8b7
+# ╠═662251f6-03ae-4ea6-8bd1-e90ec8a10805
+# ╠═383304f8-eb30-45be-99c4-542132ecc78a
