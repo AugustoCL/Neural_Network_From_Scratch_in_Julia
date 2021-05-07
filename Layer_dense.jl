@@ -5,6 +5,7 @@ using Markdown
 using InteractiveUtils
 
 # ╔═╡ be7baa4f-6871-4d74-b4d2-1c2534cdfa17
+# Row Orientation
 begin
 	using Random
 	Random.seed!(0)
@@ -28,16 +29,11 @@ begin
 end
 
 # ╔═╡ c4ea1432-abb4-11eb-1cf5-edac0735d67d
-md"# Layer_dense"
+md"# LayerDense"
 
 # ╔═╡ 45d31083-883b-4e84-913e-c040c6fdfd5f
 md"""
 >No futuro, podemos pensar em novas formas de fazer esse objeto. Por exemplo, passando a matriz W como input construtor do layer.
-"""
-
-# ╔═╡ e22e7c1c-e1c4-4ae3-96c1-9cbd71fcc999
-md"""
-### Row Orientation
 """
 
 # ╔═╡ dc76be1b-292e-4545-887e-1e62faf8e1b6
@@ -49,60 +45,84 @@ md"""
 begin
 	Random.seed!(0)
 	
-	struct LayerDense
-		w::Matrix{Float64}
-		b::Vector{Float64}
+	struct LayerDense{T<:Real}
+		W::Matrix{T}
+		b::Vector{T}
 		σ::Function
 	
-		function LayerDense(n_in::Int, n_out::Int; σ::Function = identity)
-			w = 0.01 .* randn(n_out, n_in)
-			b = zeros(n_out) 
-			return new(w, b, σ)
+		function LayerDense(W::Matrix{T}, b::Vector{T}, σ::Function = identity) where {T<:Real}
+			return new{T}(W, b, σ)
 		end
 	end
-
-	function (L::LayerDense)(input)
-		W, b, σ = L.w, L.b, L.σ
-		σ( W*input .+ b' )
+	
+	function LayerDense(W::Matrix{T}, b::Vector{S}, σ::Function = identity) where {T<:Real, S<:Real}
+		R = promote_type(T, S)
+		return LayerDense(Matrix{R}(W), Vector{R}(b), σ)
+	end
+	
+	function LayerDense(n_in::Int, n_out::Int, σ::Function = identity)
+		W = 0.01 .* randn(n_out, n_in)
+		b = zeros(n_out) 
+		return LayerDense(W, b, σ)
+	end
+	
+	function (L::LayerDense)(input::Vector)
+		W, b, σ = L.W, L.b, L.σ
+		σ(W * input + b)
+	end
+	
+	function (L::LayerDense)(input::Matrix)
+		W, b, σ = L.W, L.b, L.σ
+		σ(W * input' .+ b)
 	end
 end
+
+# ╔═╡ cda8baaf-0be6-47b7-b267-7ae084177251
+promote_type(Int, Float64) #Promoção de tipo
+
+# ╔═╡ 520df978-ec7d-4dff-a0cc-2ca2db79b491
+a = [1, 2]
+
+# ╔═╡ 1e7a5834-5938-4429-8fd4-c447ff5a02e3
+b = [1.0 4.1
+	 2.2 5.4]
+
+# ╔═╡ d45caa30-c2c7-461f-b6cb-d948b95e22de
+A = LayerDense(b, a)
+
+# ╔═╡ 6bff6f83-dcd5-44bb-b707-2890aa557deb
+A([5, 6])
+
+# ╔═╡ e85bc0f7-65ab-4a41-a4ba-e63c8b7c8184
+B = LayerDense(4, 3)
+
+# ╔═╡ 142bb8f9-4188-46d2-94a2-8407d633c496
+input = [2 3 4 5
+		 5 3 5 7] # cada obeservação deve estar em uma linha.
+
+# ╔═╡ 2377f014-0bd0-457b-b9e9-3ace1ad7c331
+B(input) #cada coluna é um output
 
 # ╔═╡ c99c7f4f-7e62-4036-ba08-4478e5480d19
 md"### Adding new sigmoid functions"
 
 # ╔═╡ 58265283-a36a-4c83-9101-3387165da021
 begin
-	logistic(x::Float64) = 1 / (1 + ℯ^(-x))
+	logistic(x::Real) = 1 / (1 + ℯ^(-x))
 	logistic(x::AbstractVecOrMat{T}) where {T<:Float64} = logistic.(x)
-	
-	ReLU(x::Float64) = max(0, x)
-	ReLU(x::AbstractVecOrMat{T}) where {T<:Float64} = ReLU.(x)
-	
-	softplus(x::Float64) = log((1+ℯ^x), ℯ)
-	softplus(x::AbstractVecOrMat{T}) where {T<:Float64} = softplus.(x)
 end
 
-# ╔═╡ d904c2ae-e035-40be-b46b-79ffd500f284
-# a few sigmoids options: 
-# tanh, atan, ReLU, logistic, softplus, softmax
-D = Layer_dense(2,3, σ = logistic) 
+# ╔═╡ 45bafada-34ec-4c41-b0a2-000f35ebffef
+begin
+	ReLU(x::Real) = max(0, x)
+	ReLU(x::AbstractVecOrMat{T}) where {T<:Float64} = ReLU.(x)
+end
 
-# ╔═╡ 00c04f4e-e883-46af-a51c-9fd5f227e685
-D([1 4; 2 3; 3 5])
-
-# ╔═╡ d0c91a1c-8798-4985-978b-4c47d1abc212
-E = LayerDense(2, 3, σ = logistic)
-
-# ╔═╡ 3de0841e-f0f3-436c-a891-dd4af32d2af6
-#E(randn(4,3))
-E([1 4; 2 3; 3 5]')
-
-# ╔═╡ 92661b11-5e13-4c8c-918b-1b85f49d583d
-(
-	by_row = D([1 4; 2 3; 3 5]), 
-	# para a orientacao coluna, o input precisa ser transposto
-	by_col = E([1 4; 2 3; 3 5]') 
-)
+# ╔═╡ d6fce490-1498-469d-8ecc-55d0a71d1565
+begin
+	softplus(x::Real) = log((1+ℯ^x), ℯ)
+	softplus(x::AbstractVecOrMat{T}) where {T<:Float64} = softplus.(x)
+end
 
 # ╔═╡ 04cadf6a-4fd1-4b5f-aa4d-140ea6e5cff2
 function softmax(x::Vector{T}) where {T<:Real}
@@ -123,36 +143,41 @@ end
 # ╔═╡ c116a1e4-fd4d-446f-bdea-02301f43b2c0
 md"**Aplying some sigmoid functions**"
 
-# ╔═╡ beff8a41-2249-4454-9f2e-b1766e1f3a66
-F = Layer_dense(2, 3, σ = softmax)
+# ╔═╡ d0c91a1c-8798-4985-978b-4c47d1abc212
+C = LayerDense(2, 3, logistic)
 
-# ╔═╡ 07c28197-fb7c-4f65-b742-2acd50da1d67
-F([1 4; 2 3; 3 5])
+# ╔═╡ 3de0841e-f0f3-436c-a891-dd4af32d2af6
+#E(randn(4,3))
+C([1 4; 2 3; 3 5])
 
 # ╔═╡ 963f6276-2440-4bfe-ae0f-539d8bfae0a2
-G = LayerDense(2, 3, σ = softmax)
+D = LayerDense(2, 3, softmax)
 
 # ╔═╡ f4b146c1-af4a-4c3e-860d-1f92c4c13a6e
-( G([1 4; 2 3; 3 5]'), sum(eachrow(G([1 4; 2 3; 3 5]'))) )
+( D([1 4; 2 3; 3 5]), sum(eachrow(D([1 4; 2 3; 3 5]))) )
 
 # ╔═╡ Cell order:
 # ╟─c4ea1432-abb4-11eb-1cf5-edac0735d67d
 # ╟─45d31083-883b-4e84-913e-c040c6fdfd5f
-# ╟─e22e7c1c-e1c4-4ae3-96c1-9cbd71fcc999
-# ╠═be7baa4f-6871-4d74-b4d2-1c2534cdfa17
-# ╠═d904c2ae-e035-40be-b46b-79ffd500f284
-# ╠═00c04f4e-e883-46af-a51c-9fd5f227e685
 # ╟─dc76be1b-292e-4545-887e-1e62faf8e1b6
 # ╠═fe237f5f-8f90-429a-8ddc-e5933b8fd808
-# ╠═d0c91a1c-8798-4985-978b-4c47d1abc212
-# ╠═3de0841e-f0f3-436c-a891-dd4af32d2af6
-# ╠═92661b11-5e13-4c8c-918b-1b85f49d583d
+# ╠═cda8baaf-0be6-47b7-b267-7ae084177251
+# ╠═520df978-ec7d-4dff-a0cc-2ca2db79b491
+# ╠═1e7a5834-5938-4429-8fd4-c447ff5a02e3
+# ╠═d45caa30-c2c7-461f-b6cb-d948b95e22de
+# ╠═6bff6f83-dcd5-44bb-b707-2890aa557deb
+# ╠═e85bc0f7-65ab-4a41-a4ba-e63c8b7c8184
+# ╠═142bb8f9-4188-46d2-94a2-8407d633c496
+# ╠═2377f014-0bd0-457b-b9e9-3ace1ad7c331
 # ╟─c99c7f4f-7e62-4036-ba08-4478e5480d19
 # ╠═58265283-a36a-4c83-9101-3387165da021
+# ╠═45bafada-34ec-4c41-b0a2-000f35ebffef
+# ╠═d6fce490-1498-469d-8ecc-55d0a71d1565
 # ╠═04cadf6a-4fd1-4b5f-aa4d-140ea6e5cff2
 # ╠═a7898ffd-1acb-4220-bbc8-3b428b95db85
 # ╟─c116a1e4-fd4d-446f-bdea-02301f43b2c0
-# ╠═beff8a41-2249-4454-9f2e-b1766e1f3a66
-# ╠═07c28197-fb7c-4f65-b742-2acd50da1d67
+# ╠═d0c91a1c-8798-4985-978b-4c47d1abc212
+# ╠═3de0841e-f0f3-436c-a891-dd4af32d2af6
 # ╠═963f6276-2440-4bfe-ae0f-539d8bfae0a2
 # ╠═f4b146c1-af4a-4c3e-860d-1f92c4c13a6e
+# ╟─be7baa4f-6871-4d74-b4d2-1c2534cdfa17

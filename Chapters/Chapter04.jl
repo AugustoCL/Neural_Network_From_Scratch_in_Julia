@@ -11,11 +11,9 @@ using LinearAlgebra
 md"#### Sigmoid"
 
 # ╔═╡ 78b943f0-ae7b-11eb-3de1-d5cfb31433c6
-begin
-	function σ(x)
-		t = exp(-abs(x))
-		return ifelse(x ≥ 0, inv(1 + t), t / (1 + t))
-	end
+function σ(x)
+	t = exp(-abs(x))
+	return ifelse(x ≥ 0, inv(1 + t), t / (1 + t))
 end
 
 # ╔═╡ 6fe8d0a2-fd10-4097-95c8-fea57d2a32e8
@@ -96,7 +94,7 @@ begin
 end
 
 # ╔═╡ Cell order:
-# ╟─6e58a278-ede3-440f-b5ad-c23d03833918
+# ╠═6e58a278-ede3-440f-b5ad-c23d03833918
 # ╟─81465bdf-4eb3-4dc5-8f60-2ccdca956e73
 # ╠═78b943f0-ae7b-11eb-3de1-d5cfb31433c6
 # ╠═6fe8d0a2-fd10-4097-95c8-fea57d2a32e8
