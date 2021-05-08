@@ -60,20 +60,25 @@ begin
 		return LayerDense(Matrix{R}(W), Vector{R}(b), σ)
 	end
 	
+	function LayerDense(W::Matrix{<:Real}, σ::Function = identity)
+		b = zeros(size(W)[1])
+		return LayerDense(W, b, σ)
+	end
+	
 	function LayerDense(n_in::Int, n_out::Int, σ::Function = identity)
 		W = 0.01 .* randn(n_out, n_in)
 		b = zeros(n_out) 
 		return LayerDense(W, b, σ)
 	end
 	
-	function (L::LayerDense)(input::Vector{<:Real})
+	function (L::LayerDense)(input::AbstractVector{<:Real})
 		W, b, σ = L.W, L.b, L.σ
-		σ(W * input + b)
+		return σ(W * input + b)
 	end
 	
-	function (L::LayerDense)(input::Matrix{<:Real})
+	function (L::LayerDense)(input::AbstractMatrix{<:Real})
 		W, b, σ = L.W, L.b, L.σ
-		σ(W * input' .+ b)
+		return σ(W * input .+ b)
 	end
 end
 
@@ -97,8 +102,11 @@ A([5, 6])
 B = LayerDense(4, 3)
 
 # ╔═╡ 142bb8f9-4188-46d2-94a2-8407d633c496
-input = [2 3 4 5
-		 5 3 5 7] # cada observação deve estar em uma linha.
+begin
+	obs01 = [2, 3, 4, 5]
+	obs02 = [2, 3, 4, 5]
+	input = [obs01 obs02] # cada observação deve estar em uma coluna.
+end 
 
 # ╔═╡ 2377f014-0bd0-457b-b9e9-3ace1ad7c331
 B(input) # cada coluna é um output
@@ -121,13 +129,14 @@ end
 # ╔═╡ 45bafada-34ec-4c41-b0a2-000f35ebffef
 begin
 	relu(x::Real) = max(zero(x), x) # zero function keep the type of x
-	relu(x::AbstractVecOrMat{T}) where {T<:Real} = relu.(x)
+	relu(x::AbstractVecOrMat{<:Real}) = relu.(x)
 end
 
 # ╔═╡ d6fce490-1498-469d-8ecc-55d0a71d1565
 begin
-	softplus(x::Real) = log((1+ℯ^x))
-	softplus(x::AbstractVecOrMat{T}) where {T<:Real} = softplus.(x)
+	#log1p(x) is the seme as log(1 + x)
+	softplus(x::Real) = ifelse(x > 0, x + log1p(exp(-x)), log1p(exp(x)))
+	softplus(x::AbstractVecOrMat{<:Real}) = softplus.(x)
 end
 
 # ╔═╡ 04cadf6a-4fd1-4b5f-aa4d-140ea6e5cff2
@@ -154,7 +163,7 @@ C = LayerDense(2, 3, σ)
 
 # ╔═╡ 3de0841e-f0f3-436c-a891-dd4af32d2af6
 #E(randn(4,3))
-C([1 4; 2 3; 3 5])
+C([1 4; 2 3; 3 5]')
 
 # ╔═╡ 963f6276-2440-4bfe-ae0f-539d8bfae0a2
 D = LayerDense(2, 3, softmax)
@@ -169,7 +178,7 @@ begin
 		return R
 	end
 
-	outp = D([1 4; 2 3; 3 5])
+	outp = D([1 4; 2 3; 3 5]')
 	target = [1, 2, 2]
 	R = []
 	for (i,d) in zip(target, eachcol(outp))
@@ -198,7 +207,7 @@ begin
 end
 
 # ╔═╡ f4b146c1-af4a-4c3e-860d-1f92c4c13a6e
-( D([1 4; 2 3; 3 5]), sum(eachrow(D([1 4; 2 3; 3 5]))) )
+( D([1 4; 2 3; 3 5]'), sum(eachrow(D([1 4; 2 3; 3 5]'))) )
 
 # ╔═╡ Cell order:
 # ╟─c4ea1432-abb4-11eb-1cf5-edac0735d67d
