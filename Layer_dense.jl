@@ -92,6 +92,12 @@ a = [1, 2]
 b = [1.0 4.1
 	 2.2 5.4]
 
+# ╔═╡ 49d3bad3-7b5c-4b77-a789-96266e23da08
+maximum(b, dims = 1)
+
+# ╔═╡ 5cbb4d86-37e3-4a4c-8a4a-40be4e01043c
+sum(b, dims = 1)
+
 # ╔═╡ d45caa30-c2c7-461f-b6cb-d948b95e22de
 A = LayerDense(b, a)
 
@@ -135,7 +141,7 @@ end
 # ╔═╡ d6fce490-1498-469d-8ecc-55d0a71d1565
 begin
 	#log1p(x) is the seme as log(1 + x)
-	softplus(x::Real) = ifelse(x > 0, x + log1p(exp(-x)), log1p(exp(x)))
+	softplus(x::Real) = ifelse(x > 0, x + log(1 + exp(-x)), log(1 + exp(x)))
 	softplus(x::AbstractVecOrMat{<:Real}) = softplus.(x)
 end
 
@@ -149,10 +155,10 @@ end
 
 # ╔═╡ a7898ffd-1acb-4220-bbc8-3b428b95db85
 function softmax(x::Matrix{T}) where {T<:Real}
-	m = maximum.(eachcol(x))
-	exp_val = exp.(x .- m')
-	s = sum(eachrow(exp_val))
-	return exp_val ./ s'
+	m = maximum(x, dims = 1)
+	exp_val = exp.(x .- m)
+	s = sum(exp_val, dims = 1)
+	return exp_val ./ s
 end
 
 # ╔═╡ c116a1e4-fd4d-446f-bdea-02301f43b2c0
@@ -217,6 +223,8 @@ end
 # ╠═cda8baaf-0be6-47b7-b267-7ae084177251
 # ╠═520df978-ec7d-4dff-a0cc-2ca2db79b491
 # ╠═1e7a5834-5938-4429-8fd4-c447ff5a02e3
+# ╠═49d3bad3-7b5c-4b77-a789-96266e23da08
+# ╠═5cbb4d86-37e3-4a4c-8a4a-40be4e01043c
 # ╠═d45caa30-c2c7-461f-b6cb-d948b95e22de
 # ╠═6bff6f83-dcd5-44bb-b707-2890aa557deb
 # ╠═e85bc0f7-65ab-4a41-a4ba-e63c8b7c8184
