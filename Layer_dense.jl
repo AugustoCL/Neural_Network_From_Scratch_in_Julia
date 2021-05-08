@@ -83,7 +83,7 @@ begin
 end
 
 # ╔═╡ cda8baaf-0be6-47b7-b267-7ae084177251
-promote_type(Int, Float64) #Promoção de tipo
+promote_type(Int, Float64) #Type promotion
 
 # ╔═╡ 520df978-ec7d-4dff-a0cc-2ca2db79b491
 a = [1, 2]
@@ -104,21 +104,40 @@ A = LayerDense(b, a)
 # ╔═╡ 6bff6f83-dcd5-44bb-b707-2890aa557deb
 A([5, 6])
 
+# ╔═╡ 5d3ae0e6-7c5d-48b7-9845-d204a1df9934
+W = rand(3, 4)
+
 # ╔═╡ e85bc0f7-65ab-4a41-a4ba-e63c8b7c8184
-B = LayerDense(4, 3)
+B = LayerDense(W)
 
 # ╔═╡ 142bb8f9-4188-46d2-94a2-8407d633c496
 begin
 	obs01 = [2, 3, 4, 5]
 	obs02 = [2, 3, 4, 5]
-	input = [obs01 obs02] # cada observação deve estar em uma coluna.
+	input = [obs01 obs02] # Each observation must be on a colunm
 end 
 
 # ╔═╡ 2377f014-0bd0-457b-b9e9-3ace1ad7c331
-B(input) # cada coluna é um output
+B(input) # Each column is an output
 
 # ╔═╡ c99c7f4f-7e62-4036-ba08-4478e5480d19
 md"### Adding new sigmoid functions"
+
+# ╔═╡ 96ce3aa7-9261-4e60-93ce-4d9321657d85
+md"""
+$$\sigma(x) = {1 \over 1 + e^{-x}}$$ 
+$$e^{-|x|} = \left\{
+  \begin{array}{lr}
+    e^{-x} & : x \ge 0\\
+    e^x & : x < 0
+  \end{array}
+\right.$$
+$$For \space x \ge 0:$$
+$$\sigma(x) = {1 \over 1 + e^{-|x|}}$$
+$$For \space x < 0:$$
+$$1 = e^{-x} ⋅ e^x → {1 \over 1 + e^{-x}} = {e^{-x} ⋅ e^x \over e^{-x} ⋅ e^x + e^{-x}} = {e^{-x} ⋅ e^x \over e^{-x}(e^x + 1)} = {e^x \over 1 + e^x}$$
+$$\sigma(x) = {e^{-|x|} \over 1 + e^{-|x|}}$$
+"""
 
 # ╔═╡ 58265283-a36a-4c83-9101-3387165da021
 begin
@@ -132,11 +151,31 @@ begin
 	const sigmoid = σ
 end
 
+# ╔═╡ fc1ddc84-62dc-4af1-9b9e-9d37f581a252
+md"""
+$$ReLU(x) = \left\{
+  \begin{array}{lr}
+    x & : x \ge 0\\
+    0 & : x < 0
+  \end{array}
+\right.$$
+$$Or$$
+$$ReLU(x) = max(0, x)$$
+"""
+
 # ╔═╡ 45bafada-34ec-4c41-b0a2-000f35ebffef
 begin
 	relu(x::Real) = max(zero(x), x) # zero function keep the type of x
 	relu(x::AbstractVecOrMat{<:Real}) = relu.(x)
 end
+
+# ╔═╡ c85cd202-7223-4c46-80ef-afd750f28ead
+md"""
+$$softplus(x) = ln(1 + e^x)$$
+$$For \space x > 0:$$
+$$1 = e^{-x} ⋅ e^x → ln(1 + e^x) = ln(e^{-x} ⋅ e^x + e^x) = ln(e^x(e^{-x} + 1)) = ln(e^x) + ln(1 + e^{-x})$$
+$$softplus(x) = x + ln(1 + e^{-x})$$
+"""
 
 # ╔═╡ d6fce490-1498-469d-8ecc-55d0a71d1565
 begin
@@ -168,8 +207,8 @@ md"**Aplying some sigmoid functions**"
 C = LayerDense(2, 3, σ)
 
 # ╔═╡ 3de0841e-f0f3-436c-a891-dd4af32d2af6
-#E(randn(4,3))
-C([1 4; 2 3; 3 5]')
+# C(randn(2, 3))
+C([[1, 4] [2, 3] [3, 5]])
 
 # ╔═╡ 963f6276-2440-4bfe-ae0f-539d8bfae0a2
 D = LayerDense(2, 3, softmax)
@@ -227,12 +266,16 @@ end
 # ╠═5cbb4d86-37e3-4a4c-8a4a-40be4e01043c
 # ╠═d45caa30-c2c7-461f-b6cb-d948b95e22de
 # ╠═6bff6f83-dcd5-44bb-b707-2890aa557deb
+# ╠═5d3ae0e6-7c5d-48b7-9845-d204a1df9934
 # ╠═e85bc0f7-65ab-4a41-a4ba-e63c8b7c8184
 # ╠═142bb8f9-4188-46d2-94a2-8407d633c496
 # ╠═2377f014-0bd0-457b-b9e9-3ace1ad7c331
 # ╟─c99c7f4f-7e62-4036-ba08-4478e5480d19
+# ╟─96ce3aa7-9261-4e60-93ce-4d9321657d85
 # ╠═58265283-a36a-4c83-9101-3387165da021
+# ╟─fc1ddc84-62dc-4af1-9b9e-9d37f581a252
 # ╠═45bafada-34ec-4c41-b0a2-000f35ebffef
+# ╟─c85cd202-7223-4c46-80ef-afd750f28ead
 # ╠═d6fce490-1498-469d-8ecc-55d0a71d1565
 # ╠═04cadf6a-4fd1-4b5f-aa4d-140ea6e5cff2
 # ╠═a7898ffd-1acb-4220-bbc8-3b428b95db85
