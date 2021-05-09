@@ -4,6 +4,12 @@
 using Markdown
 using InteractiveUtils
 
+# ╔═╡ 9af04825-842b-4794-a317-6f1b78a64fb5
+begin
+	using Statistics, CSV, DataFrames
+	using ForwardDiff
+end
+
 # ╔═╡ be7baa4f-6871-4d74-b4d2-1c2534cdfa17
 # Row Orientation
 begin
@@ -38,7 +44,7 @@ md"""
 
 # ╔═╡ dc76be1b-292e-4545-887e-1e62faf8e1b6
 md"""
-### Column Orientation
+### Struct by Column Orientation
 """
 
 # ╔═╡ fe237f5f-8f90-429a-8ddc-e5933b8fd808
@@ -82,33 +88,14 @@ begin
 	end
 end
 
-# ╔═╡ cda8baaf-0be6-47b7-b267-7ae084177251
-promote_type(Int, Float64) #Type promotion
-
-# ╔═╡ 520df978-ec7d-4dff-a0cc-2ca2db79b491
-a = [1, 2]
-
-# ╔═╡ 1e7a5834-5938-4429-8fd4-c447ff5a02e3
-b = [1.0 4.1
-	 2.2 5.4]
-
-# ╔═╡ 49d3bad3-7b5c-4b77-a789-96266e23da08
-maximum(b, dims = 1)
-
-# ╔═╡ 5cbb4d86-37e3-4a4c-8a4a-40be4e01043c
-sum(b, dims = 1)
-
-# ╔═╡ d45caa30-c2c7-461f-b6cb-d948b95e22de
-A = LayerDense(b, a)
-
-# ╔═╡ 6bff6f83-dcd5-44bb-b707-2890aa557deb
-A([5, 6])
+# ╔═╡ 4e6d165a-9707-4029-af4a-2356b0fe9c41
+md"#### Example using the struct LayerDense"
 
 # ╔═╡ 5d3ae0e6-7c5d-48b7-9845-d204a1df9934
 W = rand(3, 4)
 
 # ╔═╡ e85bc0f7-65ab-4a41-a4ba-e63c8b7c8184
-B = LayerDense(W)
+B = LayerDense(W) # Layer de 4 inputs e 3 outputs
 
 # ╔═╡ 142bb8f9-4188-46d2-94a2-8407d633c496
 begin
@@ -121,22 +108,33 @@ end
 B(input) # Each column is an output
 
 # ╔═╡ c99c7f4f-7e62-4036-ba08-4478e5480d19
-md"### Adding new sigmoid functions"
+md"#### Adding sigmoid functions"
 
 # ╔═╡ 96ce3aa7-9261-4e60-93ce-4d9321657d85
 md"""
-$$\sigma(x) = {1 \over 1 + e^{-x}}$$ 
+Função **Logística**: \
+$$\;\;\;\;\;$$ $$\sigma(x) = {1 \over 1 + e^{-x}}$$ 
+
+Na implementação via código é necessário fazer uma adaptação que evita problemas numéricos de *Overflow* resultando na seguinte função: \
+$$\sigma(x) = \left\{
+  \begin{array}{lr}
+    {1 \over 1 + e^{-|x|}}, & x \ge 0\\
+    {e^{-|x|} \over 1 + e^{-|x|}}, & x < 0
+  \end{array}
+\right.$$ \
+
+
+Para isso, utilizamos o módulo de $$x$$ na expressão $$e^{-|x|}$$ que possui a seguinte propriedade: \
 $$e^{-|x|} = \left\{
   \begin{array}{lr}
-    e^{-x} & : x \ge 0\\
-    e^x & : x < 0
+    e^{-x}, & x \ge 0\\
+    e^x, & x < 0
   \end{array}
-\right.$$
-$$For \space x \ge 0:$$
-$$\sigma(x) = {1 \over 1 + e^{-|x|}}$$
-$$For \space x < 0:$$
-$$1 = e^{-x} ⋅ e^x → {1 \over 1 + e^{-x}} = {e^{-x} ⋅ e^x \over e^{-x} ⋅ e^x + e^{-x}} = {e^{-x} ⋅ e^x \over e^{-x}(e^x + 1)} = {e^x \over 1 + e^x}$$
-$$\sigma(x) = {e^{-|x|} \over 1 + e^{-|x|}}$$
+\right.$$ 
+
+Com o modulo, quando x é positivo ou zero ($$x ≥ 0$$) a adaptação resulta na própria função logística, mas quando x é negativo são necessários os seguintes passos: \
+$$Se \space x \ge 0:$$  $$\;\;\;\;\;$$  $$\sigma(x) = {1 \over 1 + e^{-|x|}}$$ \
+$$Se \space x < 0:$$ $$\;\;\;\;\;$$ $$1 = e^{-x} ⋅ e^x → {1 \over 1 + e^{-x}} = {e^{-x} ⋅ e^x \over e^{-x} ⋅ e^x + e^{-x}} = {e^{-x} ⋅ e^x \over e^{-x}(e^x + 1)} = {e^x \over 1 + e^x} = {e^{-|x|} \over 1 + e^{-|x|}}$$
 """
 
 # ╔═╡ 58265283-a36a-4c83-9101-3387165da021
@@ -153,10 +151,11 @@ end
 
 # ╔═╡ fc1ddc84-62dc-4af1-9b9e-9d37f581a252
 md"""
+#### ReLU function
 $$ReLU(x) = \left\{
   \begin{array}{lr}
-    x & : x \ge 0\\
-    0 & : x < 0
+    x, & x \ge 0\\
+    0, & x < 0
   \end{array}
 \right.$$
 $$Or$$
@@ -201,7 +200,7 @@ function softmax(x::Matrix{T}) where {T<:Real}
 end
 
 # ╔═╡ c116a1e4-fd4d-446f-bdea-02301f43b2c0
-md"**Aplying some sigmoid functions**"
+md"##### Example with sigmoid functions"
 
 # ╔═╡ d0c91a1c-8798-4985-978b-4c47d1abc212
 C = LayerDense(2, 3, σ)
@@ -213,59 +212,123 @@ C([[1, 4] [2, 3] [3, 5]])
 # ╔═╡ 963f6276-2440-4bfe-ae0f-539d8bfae0a2
 D = LayerDense(2, 3, softmax)
 
-# ╔═╡ 1499b700-960a-4075-aa89-f5780be39728
+# ╔═╡ 56191b0c-fe49-4ed4-9ca7-2e22e7b028ba
+md"""
+#### Cost Function
+"""
+
+# ╔═╡ 7b5a6859-a9e1-48b1-a0fd-1cde06249d03
 begin
-	function CE(outp, target)
-		R = []
-		for (i,d) in zip(target, eachcol(outp))
-			push!(R, d[i])
-		end
-		return R
+	function xlogy(x::Real, y::Real) 
+		result = x * log(y)
+		ifelse(iszero(x) && !isnan(y), zero(result), result)
 	end
-
-	outp = D([1 4; 2 3; 3 5]')
-	target = [1, 2, 2]
-	R = []
-	for (i,d) in zip(target, eachcol(outp))
-		push!(R, d[i])
+	
+	function crossentropy(ŷ::AbstractVecOrMat{<:Real},
+						  y::AbstractVecOrMat{<:Real};
+						  dims::Int = 1,
+						  agg::Function = mean)
+    	agg(.-sum(xlogy.(y, ŷ), dims = dims))
 	end
+end
 
-	(outp, R)
+# ╔═╡ 4b070348-fdbc-46cd-85f0-29b64432ae21
+begin
+	outp2 = D([1 4; 2 3; 3 5]')
+	target2 = [0, 1, 0]
+	crossentropy(outp2, target2)
 end
 
 # ╔═╡ e3ec0333-14ad-42a8-9cd3-4e3937dc5ff0
 begin
-	outp1 = [
-		0.7 0.1 0.2
-		0.1 0.5 0.4
-		0.02 0.9 0.08
-	]
-	target1 = [
-		1 0 0
-		0 1 0
-		0 1 0
-	]
-	
-	#( outp1, target1')
-	outp1*target1'
-	#sum(outp1*target1', dims=2)
+	outp1 = [0.7 0.1 0.2
+			 0.1 0.5 0.4
+	   		 0.02 0.9 0.08]'
+	target1 = [1 0 0
+			   0 1 0
+		  	   0 1 0]'
+	crossentropy(outp1, target1)
 end
 
-# ╔═╡ f4b146c1-af4a-4c3e-860d-1f92c4c13a6e
-( D([1 4; 2 3; 3 5]'), sum(eachrow(D([1 4; 2 3; 3 5]'))) )
+# ╔═╡ 8f3cbc01-53ba-4ff0-8245-564f8fee53f2
+md"##### Importing data from nnfs python package"
+
+# ╔═╡ 099f5fa8-6687-4c77-9f61-119d75377bab
+data = CSV.read("spiral_data.csv", DataFrame)
+
+# ╔═╡ b5981a68-16e7-451f-9e13-d74b2b78a958
+md"#### Chain type, params(), gradient()"
+
+# ╔═╡ d2fa0422-7f39-4365-8f3b-bfa6997ae0ae
+begin
+	Random.seed!(1998)
+	
+	L1 = LayerDense(10, 5, σ)
+	L2 = LayerDense(5, 2, softmax)
+	
+	output = L2(L1(rand(10)))
+end
+
+# ╔═╡ 72f68243-8ae1-465c-854d-a76c07c5e346
+function params(Layers)
+	p = []
+	for L in Layers
+		push!(p, [ L.W[:]; L.b ] )
+	end
+	return vcat(p...)
+end
+
+# ╔═╡ e84cff98-1bea-42cb-8e8d-6f5ef08226f4
+begin 
+	Θ = params([L1, L2])
+	
+	U = ( 
+		size(L1.W, 1)*size(L1.W, 2), length(L1.b),
+		size(L2.W, 1)*size(L2.W, 2), length(L2.b),
+	)
+	U = cumsum(U)
+	
+	L1w = reshape( Θ[ 1:U[1] ], size(L1.W, 1), size(L1.W, 2))
+	
+	L1b = Θ[ U[1]+1:U[2] ]
+	
+	L2w = reshape( Θ[ U[2]+1:U[3] ], size(L2.W, 1), size(L2.W, 2))
+	
+	L2b = Θ[ U[3]+1:U[4] ]
+	
+	( length(Θ), U, (L1w, L1b, L2w, L2b) )
+end
+
+# ╔═╡ a5a511f7-38f0-4074-9192-7f11d611bf42
+begin
+	
+	struct Chain
+		Layers::Vector{LayerDense{Float64}}
+		Wl::Vector{Int}
+		Wc::Vector{Int}
+		b::Vector{Int}
+		
+		function Chain(L...)
+			Wl = Int[]
+			Wc = Int[]
+			b = Int[]
+			for (i, l) in enumerate(L)
+				Wl[i], Wc[i] = size(l.W)
+				b[i] = length(l.b)
+			end
+			return new{}(L, Wl, Wc, b)
+		end
+
+	end
+
+end
 
 # ╔═╡ Cell order:
 # ╟─c4ea1432-abb4-11eb-1cf5-edac0735d67d
 # ╟─45d31083-883b-4e84-913e-c040c6fdfd5f
 # ╟─dc76be1b-292e-4545-887e-1e62faf8e1b6
 # ╠═fe237f5f-8f90-429a-8ddc-e5933b8fd808
-# ╠═cda8baaf-0be6-47b7-b267-7ae084177251
-# ╠═520df978-ec7d-4dff-a0cc-2ca2db79b491
-# ╠═1e7a5834-5938-4429-8fd4-c447ff5a02e3
-# ╠═49d3bad3-7b5c-4b77-a789-96266e23da08
-# ╠═5cbb4d86-37e3-4a4c-8a4a-40be4e01043c
-# ╠═d45caa30-c2c7-461f-b6cb-d948b95e22de
-# ╠═6bff6f83-dcd5-44bb-b707-2890aa557deb
+# ╟─4e6d165a-9707-4029-af4a-2356b0fe9c41
 # ╠═5d3ae0e6-7c5d-48b7-9845-d204a1df9934
 # ╠═e85bc0f7-65ab-4a41-a4ba-e63c8b7c8184
 # ╠═142bb8f9-4188-46d2-94a2-8407d633c496
@@ -283,7 +346,16 @@ end
 # ╠═d0c91a1c-8798-4985-978b-4c47d1abc212
 # ╠═3de0841e-f0f3-436c-a891-dd4af32d2af6
 # ╠═963f6276-2440-4bfe-ae0f-539d8bfae0a2
-# ╠═1499b700-960a-4075-aa89-f5780be39728
+# ╟─56191b0c-fe49-4ed4-9ca7-2e22e7b028ba
+# ╠═7b5a6859-a9e1-48b1-a0fd-1cde06249d03
+# ╠═4b070348-fdbc-46cd-85f0-29b64432ae21
 # ╠═e3ec0333-14ad-42a8-9cd3-4e3937dc5ff0
-# ╠═f4b146c1-af4a-4c3e-860d-1f92c4c13a6e
+# ╟─8f3cbc01-53ba-4ff0-8245-564f8fee53f2
+# ╟─099f5fa8-6687-4c77-9f61-119d75377bab
+# ╠═9af04825-842b-4794-a317-6f1b78a64fb5
+# ╟─b5981a68-16e7-451f-9e13-d74b2b78a958
+# ╠═d2fa0422-7f39-4365-8f3b-bfa6997ae0ae
+# ╠═72f68243-8ae1-465c-854d-a76c07c5e346
+# ╠═e84cff98-1bea-42cb-8e8d-6f5ef08226f4
+# ╠═a5a511f7-38f0-4074-9192-7f11d611bf42
 # ╟─be7baa4f-6871-4d74-b4d2-1c2534cdfa17
