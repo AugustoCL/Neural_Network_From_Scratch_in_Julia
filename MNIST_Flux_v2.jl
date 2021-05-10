@@ -16,7 +16,7 @@ ytrain = hcat([ [i ≠ j ? 0.0 : 1.0 for j in 0:9] for i in labels_train ]...)
 ytest = hcat([ [i ≠ j ? 0.0 : 1.0 for j in 0:9] for i in labels_test ]...)
 
 train = DataLoader((xtrain, ytrain), batchsize = 3000, shuffle = true)
-test = (xtest, ytest)
+#test = (xtest, ytest)
 
 model = Chain(
     Dense(784, 16, relu),
@@ -34,17 +34,17 @@ train!(loss, ps, train, opt)
 
 evalcb() = @show(loss(xtrain, ytrain))
 throtle_cb = throttle(evalcb, 3)
-@epochs 5 train!(loss, ps, train, opt, cb = throtle_cb)
+@epochs 20 train!(loss, ps, train, opt, cb = throtle_cb)
 
 accuracy(x, y) = mean(onecold(model(x)) .== onecold(y)) # cute way to find average of correct guesses
 accuracy(xtrain, ytrain)
 
 function prediction(x)
-    X = model(x) 
-    predict = findfirst(x -> x == maximum(X), X) - 1
-    return predict
+    pred_vector = model(x) 
+    pred_val = findfirst(x -> x == maximum(pred_vector), pred_vector) - 1
+    return pred_val
 end
 
-prediction(xtest[:, 2])
+prediction(xtest[:, 3])
 
-labels_test[2]
+labels_test[3]
