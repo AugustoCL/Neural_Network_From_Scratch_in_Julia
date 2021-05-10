@@ -4,6 +4,7 @@ using Flux.Losses: crossentropy
 using Flux.Data: DataLoader
 using MLDatasets: MNIST
 using Statistics
+using BSON: @save
 
 tensor_train, labels_train = MNIST.traindata(Float64)
 tensor_test, labels_test = MNIST.testdata(Float64)
@@ -37,7 +38,7 @@ function upd_loss()
     println("Train loss: $(round(loss_train, digits = 6)) | Test loss: $(round(loss_test, digits = 6))")
 end
 throtle_cb = throttle(upd_loss, 1)
-@epochs 20 train!(loss, ps, train, opt, cb = throtle_cb)
+@epochs 100 train!(loss, ps, train, opt, cb = throtle_cb)
 
 accuracy(x, y) = mean(onecold(model(x)) .== onecold(y)) # cute way to find average of correct guesses
 accuracy(xtrain, ytrain)
@@ -52,3 +53,5 @@ end
 prediction(xtest[:, 3])
 
 labels_test[3]
+
+@save "MNIST_v2.bson" model
