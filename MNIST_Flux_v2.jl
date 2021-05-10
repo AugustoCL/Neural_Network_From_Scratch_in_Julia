@@ -34,7 +34,7 @@ train!(loss, ps, train, opt)
 function upd_loss()
     loss_train = loss(xtrain, ytrain)
     loss_test = loss(xtest, ytest)
-    println("Train loss: $(round(loss_train, digits = 6)) | Test loss: $(round(loss_test, digits =6 ))")
+    println("Train loss: $(round(loss_train, digits = 6)) | Test loss: $(round(loss_test, digits = 6))")
 end
 throtle_cb = throttle(upd_loss, 1)
 @epochs 20 train!(loss, ps, train, opt, cb = throtle_cb)
