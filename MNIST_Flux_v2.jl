@@ -16,7 +16,6 @@ ytrain = hcat([ [i ≠ j ? 0.0 : 1.0 for j in 0:9] for i in labels_train ]...)
 ytest = hcat([ [i ≠ j ? 0.0 : 1.0 for j in 0:9] for i in labels_test ]...)
 
 train = DataLoader((xtrain, ytrain), batchsize = 3000, shuffle = true)
-#test = (xtest, ytest)
 
 model = Chain(
     Dense(784, 16, relu),
@@ -28,16 +27,21 @@ loss(x, y) = crossentropy(model(x), y)
 
 ps = params(model)
 
-opt = Descent(0.1)
+opt = ADAM()
 
 train!(loss, ps, train, opt)
 
-evalcb() = @show(loss(xtrain, ytrain))
-throtle_cb = throttle(evalcb, 3)
+function upd_loss()
+    loss_train = loss(xtrain, ytrain)
+    loss_test = loss(xtest, ytest)
+    println("Train loss: $(round(loss_train, digits = 6)) | Test loss: $(round(loss_test, digits =6 ))")
+end
+throtle_cb = throttle(upd_loss, 1)
 @epochs 20 train!(loss, ps, train, opt, cb = throtle_cb)
 
 accuracy(x, y) = mean(onecold(model(x)) .== onecold(y)) # cute way to find average of correct guesses
 accuracy(xtrain, ytrain)
+accuracy(xtest, ytest)
 
 function prediction(x)
     pred_vector = model(x) 
