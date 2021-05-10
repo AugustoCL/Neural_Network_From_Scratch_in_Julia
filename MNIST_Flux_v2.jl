@@ -6,7 +6,7 @@ using MLDatasets: MNIST
 using Statistics
 
 tensor_train, labels_train = MNIST.traindata(Float64)
-tensor_xtest, labels_test = MNIST.testdata(Float64)
+tensor_test, labels_test = MNIST.testdata(Float64)
 
 xtrain = reshape(tensor_train, 784, :)
 xtest = reshape(tensor_test, 784, :)
