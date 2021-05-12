@@ -2,15 +2,22 @@ using Flux
 using Flux: train!, throttle, @epochs, onecold
 using Flux.Losses: crossentropy
 using Flux.Data: DataLoader
-using MLDatasets: MNIST
+using Flux.Data.MNIST
 using Statistics
 using BSON: @save
 
-tensor_train, labels_train = MNIST.traindata(Float64)
-tensor_test, labels_test = MNIST.testdata(Float64)
+#Train data
+images_train = MNIST.images(:train)
+labels_train = MNIST.labels(:train)
 
-xtrain = reshape(tensor_train, 784, :)
-xtest = reshape(tensor_test, 784, :)
+#Test data
+images_test = MNIST.images(:test)
+labels_test = MNIST.labels(:test)
+
+preprocess(img) = Float32.(img)[:]
+
+xtrain = hcat(preprocess.(images_train)...)
+xtest = hcat(preprocess.(images_test)...)
 
 #ytrain, ytest = onehotbatch(ytrain, 0:9), onehotbatch(ytest, 0:9)
 ytrain = hcat([ [i ≠ j ? 0.0 : 1.0 for j in 0:9] for i in labels_train ]...)
