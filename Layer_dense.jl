@@ -270,10 +270,10 @@ begin
 end
 
 # ╔═╡ 72f68243-8ae1-465c-854d-a76c07c5e346
-function params(Layers)
+function params(layers)
 	p = []
-	for L in Layers
-		push!(p, [ L.W[:]; L.b ] )
+	for layer in layers
+		push!(p, layer.W[:], layer.b )
 	end
 	return vcat(p...)
 end
@@ -302,7 +302,7 @@ end
 # ╔═╡ a5a511f7-38f0-4074-9192-7f11d611bf42
 begin
 	
-	struct Chain
+	struct Chain2
 		Layers::Vector{LayerDense{Float64}}
 		Wl::Vector{Int}
 		Wc::Vector{Int}
@@ -321,6 +321,44 @@ begin
 
 	end
 
+end
+
+# ╔═╡ 154e4560-0769-429e-89bd-3b0392209d6d
+typeof( (1.3,2.12) )
+
+# ╔═╡ 74ccd8c6-f513-4178-a41f-7b70835516e7
+begin
+	struct Chain{T<:Tuple}
+		layers::T
+		Chain(layers...) = new{typeof(layers)}(layers)		
+	end
+	
+	function (L::Chain)(input::AbstractVecOrMat{<:Real})
+		return ∘(reverse(L.layers)...)(input)
+	end
+end
+
+# ╔═╡ 4504eaff-0c86-4606-a410-c94a8e8a653e
+begin
+	#L1 = LayerDense(10, 5, σ)
+	#L2 = LayerDense(5, 2, softmax)
+	
+	C1 = Chain(L1, L2)
+	typeof(C1.layers)
+end
+
+# ╔═╡ ac678c79-a804-44e0-80d8-15a40dff327d
+begin
+	p = []
+	for layer in C1.layers
+		push!(p, layer.W[:], layer.b )
+	end
+	vcat(p...)
+end
+
+# ╔═╡ 4b019add-7eb4-496a-b0ef-3c3eee9d85bd
+begin
+	C1(rand(10,12))
 end
 
 # ╔═╡ Cell order:
@@ -355,7 +393,12 @@ end
 # ╠═9af04825-842b-4794-a317-6f1b78a64fb5
 # ╟─b5981a68-16e7-451f-9e13-d74b2b78a958
 # ╠═d2fa0422-7f39-4365-8f3b-bfa6997ae0ae
+# ╠═ac678c79-a804-44e0-80d8-15a40dff327d
 # ╠═72f68243-8ae1-465c-854d-a76c07c5e346
 # ╠═e84cff98-1bea-42cb-8e8d-6f5ef08226f4
 # ╠═a5a511f7-38f0-4074-9192-7f11d611bf42
+# ╠═154e4560-0769-429e-89bd-3b0392209d6d
+# ╠═74ccd8c6-f513-4178-a41f-7b70835516e7
+# ╠═4504eaff-0c86-4606-a410-c94a8e8a653e
+# ╠═4b019add-7eb4-496a-b0ef-3c3eee9d85bd
 # ╟─be7baa4f-6871-4d74-b4d2-1c2534cdfa17
