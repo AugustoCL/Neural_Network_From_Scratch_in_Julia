@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.14.5
+# v0.19.18
 
 using Markdown
 using InteractiveUtils
@@ -112,6 +112,22 @@ D(imp02)
 # ╔═╡ ae0e3918-c07e-40a5-880d-15cec3afce71
 D(randn(2))
 
+# ╔═╡ 00000000-0000-0000-0000-000000000001
+PLUTO_PROJECT_TOML_CONTENTS = """
+[deps]
+"""
+
+# ╔═╡ 00000000-0000-0000-0000-000000000002
+PLUTO_MANIFEST_TOML_CONTENTS = """
+# This file is machine-generated - editing it directly is not advised
+
+julia_version = "1.8.3"
+manifest_format = "2.0"
+project_hash = "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+
+[deps]
+"""
+
 # ╔═╡ Cell order:
 # ╟─d9cff120-aba1-11eb-0f83-db8e49ac6bab
 # ╟─4a34dd2f-cbf5-4ac0-8f97-fd4050354547
@@ -127,3 +143,5 @@ D(randn(2))
 # ╠═f8915121-453b-49bc-83ed-07ea13541160
 # ╠═ffe4c9ac-bbbf-49e0-b882-b6a8ed096622
 # ╠═ae0e3918-c07e-40a5-880d-15cec3afce71
+# ╟─00000000-0000-0000-0000-000000000001
+# ╟─00000000-0000-0000-0000-000000000002
